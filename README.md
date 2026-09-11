@@ -1,6 +1,6 @@
-1. Setup GitHub
-2. Upload a basic template to Github.
-3. Arrange the project structure.
+1. Setup GitHub (Done)
+2. Upload a basic template to Github. (Done)
+3. Arrange the project structure. (Done)
 4. Draw a graph or flow diagram
 5. Display all the list from API.
 6. Create a model class
