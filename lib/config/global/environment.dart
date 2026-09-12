@@ -5,10 +5,10 @@ class EnvironmentConfig{
     const environment = String.fromEnvironment('ENV');
     switch (environment){
       case 'develop': // For testing
-        apiUrl = 'https://dummyjson.com/products/';
+        apiUrl = 'https://dummyjson.com';
         break;
       default:
-        apiUrl = 'https://dummyjson.com/products/';
+        apiUrl = 'https://dummyjson.com';
     }
   }
 }

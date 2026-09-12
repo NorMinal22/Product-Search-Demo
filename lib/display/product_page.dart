@@ -42,8 +42,9 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
       }
 
       final productData = response['products'];
+      print(productData);
 
-      if(productData == null){
+      if(productData != null){
         apiResponseText = productData.toString();
       }
 
@@ -55,7 +56,6 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
       body: SafeArea(
         child: Center(
           child: Text(apiResponseText, style: TextStyle(color: Colors.black),),

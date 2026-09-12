@@ -9,5 +9,5 @@ class ApiAddress{
   static String get apiBaseUrl => baseUrl;
 
   // For detail api path
-  // static get loginApi => '/login';
+  static get productUrl => '/products';
 }

@@ -14,8 +14,9 @@ class ApiProduct {
     final httpClient = await HTTPClient.create();
     
     var header = httpClient.createHeader(type: RequestType.get);
-    var route = httpClient.craeteUri(ApiAddress.apiBaseUrl);
-    
+    var route = httpClient.craeteUri(ApiAddress.productUrl);
+    print(route);
+
     // Always use try and catch to track error
     // Mainly for response
     try{
