@@ -3,7 +3,7 @@
 3. Arrange the project structure. (Done)
 4. Create a develop branch at Git. (Done)
 5. Display all the list from API. (Done)
-6. Draw a graph or flow diagram
+6. Draw a graph or flow diagram. (Done)
 7. Create a model class (Done)
 8. Create a rough template of the search engine and filter base on name.
 9. Add Pagination

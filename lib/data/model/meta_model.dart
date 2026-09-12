@@ -1,3 +1,5 @@
+import '../../config/config_export.dart';
+
 /// Reference the json class of meta json
 // Model class for meta
 class MetaModel{
@@ -18,10 +20,10 @@ class MetaModel{
   /// An easy reference path to call JSON and connect to the rest of the code
   factory MetaModel.fromJson(Map<String, dynamic> json){
     return MetaModel(
-      createdAt: json['createdAt'] ?? '',
-      updatedAt: json['updatedAt'] ?? '',
-      barcode: json['barcode'] ??'',
-      qrCode: json['qrCode'] ?? '',
+      createdAt: SafeConverter.toStringValue(json['createdAt']),
+      updatedAt: SafeConverter.toStringValue(json['updatedAt']),
+      barcode: SafeConverter.toStringValue(json['barcode']),
+      qrCode: SafeConverter.toStringValue(json['qrCode']),
     );
   }
 

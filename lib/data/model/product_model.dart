@@ -1,3 +1,4 @@
+import '../../config/config_export.dart';
 import 'model_export.dart';
 
 // Model class for product (obtain from product api json format)
@@ -55,23 +56,23 @@ class ProductDemoModel{
   /// An easy reference path to call JSON and connect to the rest of the code
   factory ProductDemoModel.fromJson(Map<String, dynamic> json){
     return ProductDemoModel(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      category: json['category'],
-      price: json['price'],
-      discountPercentage: json['discountPercentage'],
-      rating: json['rating'],
-      stock: json['stock'],
-      brand: json['brand'],
-      sku: json['sku'],
-      weight: json['weight'],
-      warrantyInformation: json['warrantyInformation'],
-      shippingInformation: json['shippingInformation'],
-      availabilityStatus: json['availabilityStatus'],
-      returnPolicy: json['returnPolicy'],
-      minimumOrderQuantity: json['minimumOrderQuantity'],
-      thumbnail: json['thumbnail'],
+      id: SafeConverter.toInt(json['id']),
+      title: SafeConverter.toStringValue(json['title']),
+      description: SafeConverter.toStringValue(json['description']),
+      category: SafeConverter.toStringValue(json['category']),
+      price: SafeConverter.toDouble(json['price']),
+      discountPercentage: SafeConverter.toDouble(json['discountPercentage']),
+      rating: SafeConverter.toDouble(json['rating']),
+      stock: SafeConverter.toInt(json['stock']),
+      brand: SafeConverter.toStringValue(json['brand']),
+      sku: SafeConverter.toStringValue(json['sku']),
+      weight: SafeConverter.toDouble(json['weight']),
+      warrantyInformation: SafeConverter.toStringValue(json['warrantyInformation']),
+      shippingInformation: SafeConverter.toStringValue(json['shippingInformation']),
+      availabilityStatus: SafeConverter.toStringValue(json['availabilityStatus']),
+      returnPolicy: SafeConverter.toStringValue(json['returnPolicy']),
+      minimumOrderQuantity: SafeConverter.toInt(json['minimumOrderQuantity']),
+      thumbnail: SafeConverter.toStringValue(json['thumbnail']),
 
       tags: List<String>.from(json['tags']),
       dimensions: DimensionsModel.fromJson(json['dimensions']),

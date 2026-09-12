@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/api/api_product.dart';
+import '../data/model/product_model.dart';
 import '../service/connection_service.dart';
 
 class ProductDemoPage extends StatefulWidget {
@@ -38,16 +39,18 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
       final response = await api.productAPIDemo();
 
       final productData = response['products'] as List;
-      print(productData);
+      print('Raw: $productData');
 
       products = productData.
         map((item) => ProductDemoModel.fromJson(item as Map<String, dynamic>))
         .toList();
-      print(products);
+      print('Adjusted: $products');
 
-      if(productData != null){
-        apiResponseText = productData.toString();
-      }
+      setState(() {
+        apiResponseText = productData[0]['title'].toString();
+      });
+
+      print('Display: $apiResponseText');
 
     } catch (error){
       throw error.toString();

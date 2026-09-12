@@ -1,3 +1,5 @@
+import '../../config/config_export.dart';
+
 /// Reference the json class of dimension json
 // Model class for dimension
 class DimensionsModel{
@@ -16,9 +18,9 @@ class DimensionsModel{
   /// An easy reference path to call JSON and connect to the rest of the code
   factory DimensionsModel.fromJson(Map<String, dynamic> json){
     return DimensionsModel(
-      width: json['width'] ?? 0.0,
-      height: json['height'] ?? 0.0,
-      depth: json['depth'] ?? 0.0,
+      width: SafeConverter.toDouble(json['width']),
+      height: SafeConverter.toDouble(json['height']),
+      depth: SafeConverter.toDouble(json['depth']),
     );
   }
 

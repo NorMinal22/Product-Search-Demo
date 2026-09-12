@@ -1,3 +1,5 @@
+import '../../config/config_export.dart';
+
 /// Reference the json class of review json
 // Model class for review
 class ReviewsModel{
@@ -20,11 +22,11 @@ class ReviewsModel{
   /// An easy reference path to call JSON and connect to the rest of the code
   factory ReviewsModel.fromJson(Map<String, dynamic> json){
     return ReviewsModel(
-      rating: json['rating'] ?? 0,
-      comment: json['comment'] ?? '',
-      date: json['date'] ??'',
-      reviewerName: json['reviewerName'] ?? '',
-      reviewerEmail: json['reviewerEmail'] ?? '',
+      rating: SafeConverter.toInt(json['rating']),
+      comment: SafeConverter.toStringValue(json['comment']),
+      date: SafeConverter.toStringValue(json['date']),
+      reviewerName: SafeConverter.toStringValue(json['reviewerName']),
+      reviewerEmail: SafeConverter.toStringValue(json['reviewerEmail']),
     );
   }
 

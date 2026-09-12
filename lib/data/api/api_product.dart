@@ -8,14 +8,27 @@ import 'utils.dart';
 
 // api for getting product
 class ApiProduct {
-  Future<Map> productAPIDemo() async {
+  Future<Map> productAPIDemo({int? limit, int? skip, int? id, String? query}) async {
     // Get network client to create header
     final networkClient = http.Client();
     final httpClient = await HTTPClient.create();
     
     var header = httpClient.createHeader(type: RequestType.get);
     var route = httpClient.createUri(ApiAddress.productUrl);
-    print(route);
+
+    // Call base on id
+    if(id != null){
+      route = httpClient.createUri('${ApiAddress.productUrl}/$id');
+    // Call base on query
+    } else if(query != null){
+      route = httpClient.createUri('${ApiAddress.productUrl}/search',{'q': query});
+    // Call base on limit and skip
+    } else if(limit != null && skip != null){
+      route = httpClient.createUri(ApiAddress.productUrl, {'limit': limit, 'skip': skip});
+    } else{
+    // Call all
+      route = httpClient.createUri(ApiAddress.productUrl);
+    }
 
     // Always use try and catch to track error
     // Mainly for response
