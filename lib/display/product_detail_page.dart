@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import '../data/api/api_product.dart';
 import '../service/connection_service.dart';
 
-class ProductDemoPage extends StatefulWidget {
-  const ProductDemoPage({super.key});
+class ProductDetailDemoPage extends StatefulWidget {
+  const ProductDetailDemoPage({super.key});
 
   @override
-  State<ProductDemoPage> createState() => _ProductDemoPageState();
+  State<ProductDetailDemoPage> createState() => _ProductDetailDemoPageState();
 }
 
-class _ProductDemoPageState extends State<ProductDemoPage> {
+class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
   // Set variable for UI
   String apiResponseText = 'Test';
   List<ProductDemoModel> products = [];

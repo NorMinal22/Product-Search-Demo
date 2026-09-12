@@ -36,7 +36,7 @@ class HTTPClient{
   }
 
   // create URL
-  Uri craeteUri(String route, [Map<String, dynamic> param = const {}]){
+  Uri createUri(String route, [Map<String, dynamic> param = const {}]){
     // Call api base on environment
     var baseUri = Uri.parse(EnvironmentConfig.apiUrl + route);
 
