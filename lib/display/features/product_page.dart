@@ -110,21 +110,47 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                 children: [
                   SizedBox(
                     width: MediaQuery.sizeOf(context).width*0.7,
-                    child: TextField(
-                      onSubmitted: (value){
-                        getProductDemo(searchQuery: value);
+                    child: Autocomplete<ProductDemoModel>(
+                      displayStringForOption: (ProductDemoModel option) => option.title,
+                      optionsBuilder: (TextEditingValue textEditingValue){
+                        if(textEditingValue.text.isEmpty){
+                          return const Iterable<ProductDemoModel>.empty();
+                        }
+                        // Filter product by title
+                        return products.where((product) => 
+                          product.title.toLowerCase().contains(textEditingValue.text.toLowerCase()));
                       },
-                      decoration: const InputDecoration(
-                        hintText: "Search...",border: OutlineInputBorder(),
-                      ),
-                    ),
+                      onSelected: (ProductDemoModel selection){
+                        // When user tap on the product from the available list
+                        getProductDemo(searchQuery: selection.title);
+                      },
+                      // The Search Field UI
+                      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted){
+                        return TextField(
+                          controller: controller,
+                          focusNode: focusNode,
+                          decoration: const InputDecoration(
+                            hintText: "Search...",
+                            border: OutlineInputBorder(),
+                          ),
+                          onSubmitted: (value){
+                            getProductDemo(searchQuery: value);
+                          },
+                        );
+                      },
+                    )
                   ),
                   // Refresh button
                   IconButton(
-                      onPressed: (){
-
-                      },
-                      icon: Icon(Icons.refresh),
+                    onPressed: (){
+                      setState(() {
+                        products.clear();
+                        skipLimit = 0;
+                      });
+                      // Display all product (Back to limit = 30, skip = 0)
+                      getProductDemo(searchQuery: null);
+                    },
+                    icon: Icon(Icons.refresh),
                   ),
                 ],
               ),

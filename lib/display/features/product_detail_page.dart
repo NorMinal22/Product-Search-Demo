@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../config/global/color.dart';
 import '../../data/api/api_product.dart';
 import '../../data/model/model_export.dart';
 import '../../service/connection_service.dart';
+import 'product_page.dart';
 
 // Class detail product
 class ProductDetailDemoPage extends StatefulWidget {
@@ -46,8 +48,6 @@ class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
         products = [productData];
         apiResponseText = productData.title;
       });
-      print('Single: $products');
-      print('test');
 
     } catch (error){
       throw error.toString();
@@ -56,10 +56,120 @@ class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
 
   @override
   Widget build(BuildContext context) {
+    final product = products.isNotEmpty ? products.first : null;
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Text(apiResponseText, style: TextStyle(color: Colors.black),),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: darkMode),
+          onPressed: (){
+            Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => ProductDemoPage())
+            );
+          },
+        ),
+      ),
+      body: product == null
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image (Scrollable image)
+            SizedBox(
+              height: 250,
+              child: PageView.builder(
+                itemCount: product.images.length,
+                controller: PageController(viewportFraction: 0.9),
+                itemBuilder: (context, index){
+                  final productImage = product.images[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ClipRRect(
+                      borderRadius: BorderRadiusGeometry.circular(8),
+                      child: Image.network(
+                        productImage,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Product Title
+                Expanded(
+                  child: Text(
+                    product.title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                // Poduct Rating
+                Row(
+                  children: [
+                    const Icon(Icons.star, color: Colors.orange),
+                    Text(product.rating.toString()),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Product Price
+            Text(
+              'RM ${product.price}',
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Product Tags
+            Wrap(
+              spacing: 8,
+              children: product.tags.map((tag) => Chip(label: Text(tag))).toList(),
+            ),
+            const SizedBox(height: 16),
+            // Product Description
+            Text(
+              product.description,
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 20),
+            // Comment
+            const Text(
+              'Reviews',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Column(
+              children: product.reviews.map((review){
+                return ListTile(
+                  title: Column(
+                    children: [
+                      Text(review.reviewerName),
+                      Text(review.reviewerEmail),
+                    ],
+                  ),
+                  subtitle: Text(review.comment),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.star, color: Colors.orange),
+                      Text(review.rating.toString()),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         ),
       ),
     );
