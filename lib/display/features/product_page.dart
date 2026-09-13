@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../config/config_export.dart';
-import '../data/api/api_product.dart';
-import '../data/model/product_model.dart';
-import '../service/connection_service.dart';
+import 'package:product_search_demo/display/widgets/export_widget.dart';
+import '../../config/config_export.dart';
+import '../../data/api/api_product.dart';
+import '../../data/model/product_model.dart';
+import '../../service/connection_service.dart';
 import 'product_detail_page.dart';
 
 class ProductDemoPage extends StatefulWidget {
@@ -14,7 +15,8 @@ class ProductDemoPage extends StatefulWidget {
 
 class _ProductDemoPageState extends State<ProductDemoPage> {
   // Set variable for UI
-  String apiResponseText = 'Test';
+  // Store selected tags when click on checkbox
+  final List<String> selectedTags = [];
   List<ProductDemoModel> products = [];
   final ScrollController _scrollController = ScrollController();
   int skipLimit = 0;
@@ -35,6 +37,15 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
       // Update skip value and pass to API
       getProductDemo(skip: skipLimit);
     }
+  }
+
+  // Tag filtering
+  List<ProductDemoModel> get filteredProducts {
+    if(selectedTags.isEmpty) return products;
+    return products.where((prod){
+      // Check the product for tag reference
+      return prod.tags.any((tag) => selectedTags.contains(tag));
+    }).toList();
   }
 
   // Get the API response
@@ -58,19 +69,31 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
       final newProducts = productData.
         map((item) => ProductDemoModel.fromJson(item as Map<String, dynamic>))
         .toList();
-      print('Adjusted: $newProducts');
 
       setState(() {
         // Whenever skip is updated, add into the list, not replace
         products.addAll(newProducts);
-        apiResponseText = productData[0]['title'].toString();
       });
-
-      print('Display: $apiResponseText');
-
     } catch (error){
       throw error.toString();
     }
+  }
+
+  // Show tag dialog box
+  void showTagDialog(){
+    showDialog(
+      context: context,
+      builder: (_) => TagPopupWidget(
+        selectedTags: selectedTags,
+        onSave: (updatedList){
+          setState(() {
+            selectedTags
+              ..clear()
+              ..addAll(updatedList);
+          });
+        },
+      ),
+    );
   }
 
   @override
@@ -80,28 +103,53 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
         child: Column(
           children: [
             // Search
-            Row(
-              children: [
-                SizedBox(
-                  child: Text('Search...'),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsetsGeometry.only(left: 10, right: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.sizeOf(context).width*0.7,
+                    child: TextField(
+                      onSubmitted: (value){
+                        getProductDemo(searchQuery: value);
+                      },
+                      decoration: const InputDecoration(
+                        hintText: "Search...",border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  // Refresh button
+                  IconButton(
+                      onPressed: (){
+
+                      },
+                      icon: Icon(Icons.refresh),
+                  ),
+                ],
+              ),
             ),
+
             // Tag Section
-            Chip(label: Text('Tag')),
+            ElevatedButton(
+              onPressed: showTagDialog,
+              child: const Text('TAGS'),
+            ),
             // Content
             Expanded(
               child: GridView.builder(
                 controller: _scrollController,
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 4 / 5,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12
                 ),
-                itemCount: products.length,
+                itemCount: filteredProducts.length,
                 itemBuilder: (BuildContext context, index){
-                  final product = products[index];
+                  final product = filteredProducts[index];
                   return GestureDetector(
                     onTap: (){
                       // Navigate to product detail page
@@ -112,14 +160,21 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: lightMode,
-                        borderRadius: BorderRadius.circular(5),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: darkMode,
                           width: 2,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: darkMode.withValues(alpha: 0.2),
+                            blurRadius: 3,
+                            offset: const Offset(1, 2),
+                          )
+                        ],
                       ),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           // Product image
                           Expanded(
@@ -135,6 +190,7 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                           // Title
                           Text(
                             product.title,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -146,6 +202,7 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                           // Price
                           Text(
                             '${product.price}',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: darkMode,
                               fontSize: 12,

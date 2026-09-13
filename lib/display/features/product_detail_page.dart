@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../data/api/api_product.dart';
-import '../data/model/model_export.dart';
-import '../service/connection_service.dart';
+import '../../data/api/api_product.dart';
+import '../../data/model/model_export.dart';
+import '../../service/connection_service.dart';
 
 // Class detail product
 class ProductDetailDemoPage extends StatefulWidget {

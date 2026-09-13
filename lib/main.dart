@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'config/config_export.dart';
-import 'display/product_page.dart';
+import 'display/features/product_page.dart';
 
 void main() {
   // For language or shared preference
