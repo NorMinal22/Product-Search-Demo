@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:product_search_demo/display/widgets/export_widget.dart';
+import 'package:product_search_demo/helper/toast_message.dart';
 import '../../config/config_export.dart';
 import '../../data/api/api_product.dart';
 import '../../data/model/product_model.dart';
@@ -20,6 +21,9 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
   List<ProductDemoModel> products = [];
   final ScrollController _scrollController = ScrollController();
   int skipLimit = 0;
+  bool loadingMoreItem = false;
+  String? currentSearchProduct;
+
   // On page load, initialize
   @override
   void initState() {
@@ -32,10 +36,22 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
   // scroll method
   void scrollPagination(){
     if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent){
-      // Reach the bottom, load the next skip
-      skipLimit += 1;
-      // Update skip value and pass to API
-      getProductDemo(skip: skipLimit);
+      if(!loadingMoreItem){
+        setState(() {
+          loadingMoreItem = true;
+          // Reach the bottom, load the next skip
+          skipLimit += 1;
+        });
+        // Update skip value and pass to API
+        getProductDemo(skip: skipLimit, searchQuery: currentSearchProduct).then((_){
+          if(mounted){
+            setState(() {
+              loadingMoreItem = false;
+            });
+          }
+        });
+      }
+
     }
   }
 
@@ -55,8 +71,10 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
 
     // Check internet
     final hasInternet = await checkInternet(context);
-    // If no internet, stop the process
     if (!hasInternet) {
+      if (!mounted) return;
+      // If no internet, stop the process
+      ToastMessage.show(context, message: 'No internet', type: ToastType.error);
       return;
     }
 
@@ -74,7 +92,12 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
         // Whenever skip is updated, add into the list, not replace
         products.addAll(newProducts);
       });
+
+      if (!mounted) return;
+      ToastMessage.show(context, message: 'Product loaded', type: ToastType.success);
     } catch (error){
+      if (!mounted) return;
+      ToastMessage.show(context, message: error.toString(), type: ToastType.error);
       throw error.toString();
     }
   }
@@ -121,8 +144,13 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                           product.title.toLowerCase().contains(textEditingValue.text.toLowerCase()));
                       },
                       onSelected: (ProductDemoModel selection){
+                        setState(() {
+                          currentSearchProduct = selection.title;
+                          products.clear();
+                          skipLimit = 0;
+                        });
                         // When user tap on the product from the available list
-                        getProductDemo(searchQuery: selection.title);
+                        getProductDemo(searchQuery: currentSearchProduct);
                       },
                       // The Search Field UI
                       fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted){
@@ -134,7 +162,12 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                             border: OutlineInputBorder(),
                           ),
                           onSubmitted: (value){
-                            getProductDemo(searchQuery: value);
+                            setState(() {
+                              currentSearchProduct = value;
+                              products.clear();
+                              skipLimit = 0;
+                            });
+                            getProductDemo(searchQuery: currentSearchProduct);
                           },
                         );
                       },
@@ -175,6 +208,15 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                 ),
                 itemCount: filteredProducts.length,
                 itemBuilder: (BuildContext context, index){
+                  if (index == filteredProducts.length){
+                    // Loading Icon at bottom once scrolling reach end
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
                   final product = filteredProducts[index];
                   return GestureDetector(
                     onTap: (){
@@ -205,11 +247,26 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                           // Product image
                           Expanded(
                             child: ClipRRect(
-                              borderRadius: BorderRadiusGeometry.vertical(top: Radius.circular(5)),
-                              child: Image.network(
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
+                              child: product.thumbnail.isEmpty
+                              // Placeholder
+                                  ? Image.asset(
+                                      'assets/images/placeholder.jpg',
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                    )
+                                  : Image.network(
                                 product.thumbnail,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
+                                errorBuilder: (context, error, stackTrace){
+                                  // Fallback if network fail
+                                  return Image.asset(
+                                    'assets/images/placeholder.jpg',
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                  );
+                                },
                               ),
                             ),
                           ),

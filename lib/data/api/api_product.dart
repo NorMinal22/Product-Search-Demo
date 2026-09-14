@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import '../../config/config_export.dart';
+import '../../helper/toast_message.dart';
 import 'api_address.dart';
 import 'utils.dart';
 
@@ -49,7 +50,7 @@ class ApiProduct {
     } on TimeoutException{
       throw 'Timeout';
     } catch (error){
-      throw error.toString();
+      throw 'Fail to load response data ${error.toString()}';
     } finally {
       // Once all done, close
       networkClient.close();

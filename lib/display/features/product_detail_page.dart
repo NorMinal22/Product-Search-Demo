@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../config/global/color.dart';
 import '../../data/api/api_product.dart';
 import '../../data/model/model_export.dart';
+import '../../helper/toast_message.dart';
 import '../../service/connection_service.dart';
 import 'product_page.dart';
 
@@ -16,7 +17,6 @@ class ProductDetailDemoPage extends StatefulWidget {
 
 class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
   // Set variable for UI
-  String apiResponseText = 'Test';
   List<ProductDemoModel> products = [];
 
   // On page load, initialize
@@ -35,21 +35,27 @@ class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
     final hasInternet = await checkInternet(context);
     // If no internet, stop the process
     if (!hasInternet) {
+      if (!mounted) return;
+      // If no internet, stop the process
+      ToastMessage.show(context, message: 'No internet', type: ToastType.error);
       return;
     }
 
     // Always try and catch error from response
     try{
       final response = await api.productAPIDemo(id: id);
-      print('Response: $response');
       final productData = ProductDemoModel.fromJson(response as Map<String, dynamic>);
 
       setState(() {
         products = [productData];
-        apiResponseText = productData.title;
       });
 
+      if (!mounted) return;
+      ToastMessage.show(context, message: 'Product loaded', type: ToastType.success);
+
     } catch (error){
+      if (!mounted) return;
+      ToastMessage.show(context, message: error.toString(), type: ToastType.error);
       throw error.toString();
     }
   }
@@ -78,19 +84,38 @@ class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
             // Image (Scrollable image)
             SizedBox(
               height: 250,
-              child: PageView.builder(
-                itemCount: product.images.length,
-                controller: PageController(viewportFraction: 0.9),
-                itemBuilder: (context, index){
-                  final productImage = product.images[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ClipRRect(
-                      borderRadius: BorderRadiusGeometry.circular(8),
-                      child: Image.network(
-                        productImage,
+              child: product.images.isEmpty
+                  // Placeholder image if no image
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        'assets/images/placeholder.jpeg',
                         fit: BoxFit.cover,
                         width: double.infinity,
+                      ),
+                    )
+                  // Show swipeable image
+                  : PageView.builder(
+                    itemCount: product.images.length,
+                    controller: PageController(viewportFraction: 0.9),
+                    itemBuilder: (context, index){
+                      final productImage = product.images[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: ClipRRect(
+                          borderRadius: BorderRadiusGeometry.circular(8),
+                          child: Image.network(
+                            productImage,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            errorBuilder: (context, error, stackTrace){
+                              // Fallback if network fail
+                              return Image.asset(
+                                'assets/images/placeholder.jpg',
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                            );
+                        },
                       ),
                     ),
                   );
@@ -111,7 +136,7 @@ class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
                     ),
                   ),
                 ),
-                // Poduct Rating
+                // Product Rating
                 Row(
                   children: [
                     const Icon(Icons.star, color: Colors.orange),
