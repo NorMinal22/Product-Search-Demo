@@ -18,16 +18,22 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
   // Set variable for UI
   // Store selected tags when click on checkbox
   final List<String> selectedTags = [];
+  // Store response json and match it with the product model
   List<ProductDemoModel> products = [];
+  // For scrolling controller
   final ScrollController _scrollController = ScrollController();
+  // Skip limit
   int skipLimit = 0;
+  // Loading check if loading more item
   bool loadingMoreItem = false;
+  // The text that will display at search
   String? currentSearchProduct;
 
   // On page load, initialize
   @override
   void initState() {
     super.initState();
+    // Call product api
     getProductDemo();
     // Initialize scroll event
     _scrollController.addListener(scrollPagination);
@@ -35,9 +41,11 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
 
   // scroll method
   void scrollPagination(){
+    // If scrolling reach the end (the end of the item display limit)
     if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent){
       if(!loadingMoreItem){
         setState(() {
+          // call loading
           loadingMoreItem = true;
           // Reach the bottom, load the next skip
           skipLimit += 1;
@@ -46,6 +54,7 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
         getProductDemo(skip: skipLimit, searchQuery: currentSearchProduct).then((_){
           if(mounted){
             setState(() {
+              // Disable loading bool
               loadingMoreItem = false;
             });
           }
@@ -55,11 +64,12 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
     }
   }
 
-  // Tag filtering
+  // Tag filtering, after fetching from API
   List<ProductDemoModel> get filteredProducts {
     if(selectedTags.isEmpty) return products;
     return products.where((prod){
       // Check the product for tag reference
+      // This is where the tags is being filtered when searching item by tags
       return prod.tags.any((tag) => selectedTags.contains(tag));
     }).toList();
   }
@@ -80,10 +90,13 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
 
     // Always try and catch error from response
     try{
+      // This response is flexible. Allow to call all, or specific response base on parameter pass to API
       final response = await api.productAPIDemo(limit: AppSetting.itemLimit, skip: SafeConverter.toInt(skipLimit), id: id, query: searchQuery);
 
+      // Get the response of the product and store it as list
       final productData = response['products'] as List;
 
+      // Map the product using the Model class
       final newProducts = productData.
         map((item) => ProductDemoModel.fromJson(item as Map<String, dynamic>))
         .toList();
@@ -93,10 +106,14 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
         products.addAll(newProducts);
       });
 
+      // Mounted, make sure all current running process stop
+      // Avoid lag
+      // ALso use to generate toast since toast is use under context. Context = Where widget is build
       if (!mounted) return;
       ToastMessage.show(context, message: 'Product loaded', type: ToastType.success);
     } catch (error){
       if (!mounted) return;
+      // If error, display toast error message
       ToastMessage.show(context, message: error.toString(), type: ToastType.error);
       throw error.toString();
     }
@@ -106,8 +123,11 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
   void showTagDialog(){
     showDialog(
       context: context,
+      // Build the toast popup widget (separate class)
       builder: (_) => TagPopupWidget(
+        // Tag that is selected
         selectedTags: selectedTags,
+        // The on save button. Update the tags
         onSave: (updatedList){
           setState(() {
             selectedTags
@@ -119,18 +139,21 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
     );
   }
 
+  // UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            // Search
+            // Search area
             Padding(
               padding: const EdgeInsetsGeometry.only(left: 10, right: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Auto complete search
+                  // user-friendly way to suggest options as users type into a text field. It dynamically displays a list of suggestions based on the user's input.
                   SizedBox(
                     width: MediaQuery.sizeOf(context).width*0.7,
                     child: Autocomplete<ProductDemoModel>(
@@ -143,6 +166,7 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                         return products.where((product) => 
                           product.title.toLowerCase().contains(textEditingValue.text.toLowerCase()));
                       },
+                      // Once selected, reset the search and pass it by title to API so that search filter correctly
                       onSelected: (ProductDemoModel selection){
                         setState(() {
                           currentSearchProduct = selection.title;
@@ -161,6 +185,7 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                             hintText: "Search...",
                             border: OutlineInputBorder(),
                           ),
+                          // pass search query to API and refresh
                           onSubmitted: (value){
                             setState(() {
                               currentSearchProduct = value;
@@ -179,6 +204,7 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                       setState(() {
                         products.clear();
                         skipLimit = 0;
+                        currentSearchProduct = '';
                       });
                       // Display all product (Back to limit = 30, skip = 0)
                       getProductDemo(searchQuery: null);
@@ -197,6 +223,7 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
             // Content
             Expanded(
               child: GridView.builder(
+                // scroll controller place here
                 controller: _scrollController,
                 shrinkWrap: true,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -206,8 +233,10 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12
                 ),
+                // Number of item depends on the product filtered length
                 itemCount: filteredProducts.length,
                 itemBuilder: (BuildContext context, index){
+                  // Check if there is product
                   if (index == filteredProducts.length){
                     // Loading Icon at bottom once scrolling reach end
                     return const Center(
@@ -217,14 +246,16 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                       ),
                     );
                   }
+                  // If product exist, refer in base on index (like one product item split into index 1, 2, 3, ...)
                   final product = filteredProducts[index];
                   return GestureDetector(
                     onTap: (){
                       // Navigate to product detail page
+                      // Pass the selected product id to product detail page
                       Navigator.of(context).push(
                           MaterialPageRoute(builder: (context) => ProductDetailDemoPage(id: product.id))
                       );
-                    },
+                    },// Product UI
                     child: Container(
                       decoration: BoxDecoration(
                         color: lightMode,
@@ -249,7 +280,7 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                             child: ClipRRect(
                               borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
                               child: product.thumbnail.isEmpty
-                              // Placeholder
+                              // Placeholder if empty
                                   ? Image.asset(
                                       'assets/images/placeholder.jpg',
                                       fit: BoxFit.cover,
@@ -259,6 +290,7 @@ class _ProductDemoPageState extends State<ProductDemoPage> {
                                 product.thumbnail,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
+                                // If image show error when loading
                                 errorBuilder: (context, error, stackTrace){
                                   // Fallback if network fail
                                   return Image.asset(

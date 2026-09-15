@@ -23,6 +23,7 @@ class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
   @override
   void initState() {
     super.initState();
+    // Call API at page load
     getProductDemo(widget.id);
   }
 
@@ -44,26 +45,33 @@ class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
     // Always try and catch error from response
     try{
       final response = await api.productAPIDemo(id: id);
+      // Once obtain product from API, match it with the model class
       final productData = ProductDemoModel.fromJson(response as Map<String, dynamic>);
 
       setState(() {
+        // Encase it so that it is refer as List
         products = [productData];
       });
 
+      // Use to generate toast since toast is use under context. Context = Where widget is build
       if (!mounted) return;
       ToastMessage.show(context, message: 'Product loaded', type: ToastType.success);
 
     } catch (error){
+      // If error
       if (!mounted) return;
       ToastMessage.show(context, message: error.toString(), type: ToastType.error);
       throw error.toString();
     }
   }
 
+  // UI
   @override
   Widget build(BuildContext context) {
+    // Store product detail if it is not empty into a variable
     final product = products.isNotEmpty ? products.first : null;
     return Scaffold(
+      // Back button
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: darkMode),
@@ -74,8 +82,11 @@ class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
           },
         ),
       ),
+      // Check if empty or not
       body: product == null
+      // Loading indicator if empty
           ? const Center(child: CircularProgressIndicator())
+      // If not empty
           : SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -96,6 +107,7 @@ class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
                     )
                   // Show swipeable image
                   : PageView.builder(
+                // Using the number of image passed
                     itemCount: product.images.length,
                     controller: PageController(viewportFraction: 0.9),
                     itemBuilder: (context, index){
@@ -175,6 +187,7 @@ class _ProductDetailDemoPageState extends State<ProductDetailDemoPage> {
             ),
             const SizedBox(height: 8),
             Column(
+              // Reviews have multiple, so it is map and display one by one
               children: product.reviews.map((review){
                 return ListTile(
                   title: Column(

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
+// For teat reference
 enum ToastType{
   success,
   error,
   loading,
 }
 
+// Class to create custom toast
 class ToastMessage {
   static void show(
+      // Default
     BuildContext context,{
       required String message,
       ToastType type = ToastType.error,
@@ -36,17 +39,22 @@ class ToastMessage {
   }
 }
 
+// The toast widget
+// Will be use to call everywhere else in the code
 class ToastWidget extends StatelessWidget {
   final String message;
   final ToastType type;
 
+  // Constructor
   const ToastWidget({super.key, required this.message, required this.type});
 
+  // UI
   @override
   Widget build(BuildContext context) {
     Color backgroundColor;
     IconData iconData;
 
+    // Check which toast base on type
     switch(type){
       case ToastType.success:
         backgroundColor = Colors.green;

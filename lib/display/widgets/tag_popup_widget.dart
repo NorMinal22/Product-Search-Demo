@@ -2,10 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:product_search_demo/helper/tags_reference.dart';
 
+// Class for tag popup
 class TagPopupWidget extends StatefulWidget {
   final List<String> selectedTags;
   final Function(List<String>) onSave;
 
+  // Constructor
   const TagPopupWidget({
     super.key,
     required this.selectedTags,
@@ -17,6 +19,7 @@ class TagPopupWidget extends StatefulWidget {
 }
 
 class _TagPopupWidgetState extends State<TagPopupWidget> {
+  // Track tags selected as temp
   late List<String> tempSelected;
 
   @override
@@ -31,16 +34,19 @@ class _TagPopupWidgetState extends State<TagPopupWidget> {
     return TagsReference.values;
   }
 
+  // UI
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Title
           const Text(
             'Select Tags',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
+          // Display selected tag count
           const SizedBox(height: 4),
           Text(
             'Selected ${tempSelected.length}',
@@ -92,12 +98,13 @@ class _TagPopupWidgetState extends State<TagPopupWidget> {
                   children: allTags().map((tag){
                     final tagName = tag.displayTags;
                     final isSelected = tempSelected.contains(tagName);
-
+                    // How tags are display
                     return ChoiceChip(
                       label: Text(tagName),
                       selected: isSelected,
                       onSelected: (selected){
                         setState(() {
+                          // Check and update tags once selected or deselected
                           if(selected){
                             tempSelected.add(tagName);
                           } else {
@@ -113,6 +120,7 @@ class _TagPopupWidgetState extends State<TagPopupWidget> {
           ],
         ),
       ),
+      // On save button
       actions: [
         TextButton(
           onPressed: (){

@@ -1,3 +1,4 @@
+// The main url from API
 class EnvironmentConfig{
   static late final String apiUrl;
 

@@ -1,3 +1,4 @@
+// Tag reference code
 enum TagsReference {
   beauty,
   fragrances,

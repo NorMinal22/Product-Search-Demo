@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import '../../config/config_export.dart';
-import '../../helper/toast_message.dart';
 import 'api_address.dart';
 import 'utils.dart';
 
@@ -45,7 +44,6 @@ class ApiProduct {
         throw jsonResponse['message'];
       }
       // otherwise, return the response data (statusCode = 200)
-      print(jsonResponse);
       return jsonResponse;
     } on TimeoutException{
       throw 'Timeout';
